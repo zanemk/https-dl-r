@@ -1,0 +1,22 @@
+# get_fnames
+# for a given year, parse the rmgsc site and return a vector of the fire names.
+# These are also the subdirectories where we will find the zip files.
+
+get_fnames <- function(year) {
+  url <- paste0("https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/", year, "_fire_data/Washington/")
+  
+  txt <- readLines(url)[3]
+  
+  # first split
+  splitfire <- sapply(strsplit(txt, '/\">'), function(x) rev(x))  
+  # drop last two
+  end <- nrow(splitfire) - 2
+  splitfire <- splitfire[1:end,]
+  
+  # second split
+  fire.names <- sapply(strsplit(splitfire, "</A>"), function(x) x[1])
+  
+  return(fire.names)
+}
+
+# another option would be to return prepared url's from the fire.names
