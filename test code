@@ -1,0 +1,47 @@
+rm(list = ls())
+gc()
+
+setwd("C:/Users/kelly_za/Downloads/")
+
+# base url: "https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/20##_fire_data/Washington/"
+
+# test get >> split >> split for upper level directory
+# Get the list of names
+# 2015
+url <- "https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/2015_fire_data/Washington/"       # note - can take advantage of uniform url structure and cycle years
+txt <- readLines(url)
+
+# first split
+split1 <- sapply(strsplit(txt[3], '/\">'), function(x) rev(x))  # drop last two
+end <- nrow(split1) - 2
+split1 <- split1[1:end,]
+
+# second split
+split2 <- sapply(strsplit(split1, "</A>"), function(x) x[1])
+
+
+# testing within 2015 >> Washington -----------------------------------------------------------------
+
+# create a base url for paste0
+baseurl <- "https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/2015_fire_data/Washington/"
+# test:
+name <- split2[1]
+paste0(baseurl, split2[1], "/")     # fine
+
+cur <- paste0(baseurl, split2[1], "/")
+# download.file("https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/2015_fire_data/Washington/Wolverine/wa_wolverine_20150630_0000_dd83.zip")
+
+# read cur and get .zips
+txt <- readLines(cur)[3]
+
+# split once
+splitcur <- sapply(strsplit(txt, '\">'), function(x) rev(x))
+# split again (for file names)
+f <- sapply(strsplit(splitcur, "</A>"), function(x) x[1])
+# keep zips only
+f <- f[grep("zip", f)]
+
+# test download
+paste0(cur, f[1])
+download.file(url = paste0(cur, f[1]), destfile = f[1])
+# good
